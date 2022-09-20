@@ -2,15 +2,20 @@
 import numpy as np
 import scipy.io as sio
 import matplotlib.pyplot as plt
+import pickle
 
-rat_ID = [3,4,9,201,203,206,210,211,213]
+
+#rat_ID = [3,4,9,201,203,206,210,211,213]
+rat_ID = [2,5,10,11,204,205,207,209,212,214]
 keywords = ['HPCpyra_complex_swr_veh','HPCpyra_ripple_veh','HPCpyra_swr_veh']
+keywords = ['HPCpyra_complex_swr_cbd','HPCpyra_ripple_cbd','HPCpyra_swr_cbd']
+
 type_label = ['ComplexRipple','Ripple','SWR']
 srate = 600
 rat_number = 0
 
-data_path = '/home/melisamc/Documentos/ripple/data/HPCpyra/'
-figure_path = '/home/melisamc/Documentos/ripple/figures/'
+data_path = '/home/melisamc/Documentos/ripple/data/CBD_PCA_HPCpyra/'
+figure_path = '/home/melisamc/Documentos/ripple/figures/cbd_filter/'
 
 color_list = ['b','r','g']
 time = np.arange(1500, 2000)
@@ -20,9 +25,11 @@ mean_matrix_rats = np.zeros((len(rat_ID),3, time.shape[0]))
 
 for rat_number in range(len(rat_ID)):
 
-    data_file = 'HPCpyra_events_ratID' + str(rat_ID[rat_number]) + '.mat'
-
+    #data_file = 'HPCpyra_events_ratID' + str(rat_ID[rat_number]) + '.mat'
+    data_file = 'PCA_HPCpyra_events_ratID' + str(rat_ID[rat_number]) + '.mat'
     data = sio.loadmat(data_path + data_file)
+
+
     figure = plt.figure()
     gs = plt.GridSpec(12, 2)
 

@@ -5,14 +5,18 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from scipy import signal
 
-rat_ID = [3,4,9,201,203,206,210,211,213]
-keywords = ['HPCpyra_complex_swr_veh','HPCpyra_ripple_veh','HPCpyra_swr_veh']
+#rat_ID = [3,4,9,201,203,206,210,211,213]
+rat_ID = [2,5,10,11,204,205,207,209,212,214]
+
+#keywords = ['HPCpyra_complex_swr_veh','HPCpyra_ripple_veh','HPCpyra_swr_veh']
+keywords = ['HPCpyra_complex_swr_cbd','HPCpyra_ripple_cbd','HPCpyra_swr_cbd']
+
 type_label = ['ComplexRipple','Ripple','SWR']
 srate = 600
 rat_number = 0
 
-data_path = '/home/melisamc/Documentos/ripple/data/HPCpyra/'
-figure_path = '/home/melisamc/Documentos/ripple/figures/'
+data_path = '/home/melisamc/Documentos/ripple/data/CBD/HPCpyra/'
+figure_path = '/home/melisamc/Documentos/ripple/figures/cbd/'
 
 color_list = ['b','r','g']
 time = np.arange(1500, 2000)
@@ -314,7 +318,7 @@ for component in range(51):
 
 ###########################################################################################################
 
-number_of_components = 1
+number_of_components = 5
 
 pca0 = PCA(number_of_components)
 pca0.fit(matrix)
@@ -425,8 +429,8 @@ panel = 0
 for number_of_components in [51,1,2,3,4,5]:
 
     pca1 = PCA(number_of_components)
-    pca1.fit(swr_matrix)
-    x = pca1.transform(swr_matrix)
+    pca1.fit(ripple_matrix)
+    x = pca1.transform(ripple_matrix)
     transform1 = pca1.inverse_transform(x)
 
     time = np.arange(1500, 2000)
@@ -442,5 +446,5 @@ for number_of_components in [51,1,2,3,4,5]:
     axes[panel].set_xlabel('Time',fontsize = 12)
     panel = panel+1
 figure.set_size_inches([25,10])
-figure.savefig(figure_path + 'transformed_swr_'+str(number_of_components)+'.png')
+figure.savefig(figure_path + 'transformed_R_'+str(number_of_components)+'.png')
 plt.show()

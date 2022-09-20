@@ -4,18 +4,24 @@ import scipy.io as sio
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from scipy import signal
+from scipy.io import savemat
+
 
 rat_ID = [3,4,9,201,203,211,213]
 rat_test = [206,210]
 keywords = ['HPCpyra_complex_swr_veh','HPCpyra_ripple_veh','HPCpyra_swr_veh']
+
+rat_ID = [2,5,10,11,204,205,207,209,212,214]
+rat_test = [204,205]
+keywords = ['HPCpyra_complex_swr_cbd','HPCpyra_ripple_cbd','HPCpyra_swr_cbd']
+
 type_label = ['ComplexRipple','Ripple','SWR']
 srate = 600
 rat_number = 0
 
-
-data_path = '/home/melisamc/Documentos/ripple/data/HPCpyra/'
-output_data_path = '/home/melisamc/Documentos/ripple/data/PCA_HPCpyra/'
-figure_path = '/home/melisamc/Documentos/ripple/figures/'
+data_path = '/home/melisamc/Documentos/ripple/data/CBD/HPCpyra/'
+output_data_path = '/home/melisamc/Documentos/ripple/data/CBD_PCA_HPCpyra/'
+figure_path = '/home/melisamc/Documentos/ripple/figures/cbd/'
 
 color_list = ['b','r','g']
 time = np.arange(1500, 2000)
@@ -88,7 +94,7 @@ transform3 = pca3.inverse_transform(x)
 ###save new_rat_data
 for rat_number in range(len(rat_ID)):
     input_file_name = 'HPCpyra_events_ratID' + str(rat_ID[rat_number]) + '.mat'
-    output_file_name = output_data_path + 'PCA_HPCpyra_events_ratID' + str(rat_ID[rat_number]) + '.png'
+    output_file_name = output_data_path + 'PCA_HPCpyra_events_ratID' + str(rat_ID[rat_number]) + '.mat'
     data = sio.loadmat(data_path + data_file)
     complex_ripple = data[keywords[0]][:,:3600]
     x = pca1.transform(complex_ripple)
@@ -100,12 +106,12 @@ for rat_number in range(len(rat_ID)):
     x = pca3.transform(swr)
     transform_SWR = pca3.inverse_transform(x)
     output = {keywords[0]:transform_CR,keywords[1]:transform_R,keywords[2]:transform_SWR}
-    np.save(output_file_name,output)
+    savemat(output_file_name,output)
 
 ###save test data new_rat_data
 for rat_number in range(len(rat_test)):
     input_file_name = 'HPCpyra_events_ratID' + str(rat_test[rat_number]) + '.mat'
-    output_file_name = output_data_path + 'PCA_HPCpyra_events_ratID' + str(rat_test[rat_number]) + '.png'
+    output_file_name = output_data_path + 'PCA_HPCpyra_events_ratID' + str(rat_test[rat_number]) + '.mat'
     data = sio.loadmat(data_path + data_file)
     complex_ripple = data[keywords[0]][:,:3600]
     x = pca1.transform(complex_ripple)
@@ -117,7 +123,8 @@ for rat_number in range(len(rat_test)):
     x = pca3.transform(swr)
     transform_SWR = pca3.inverse_transform(x)
     output = {keywords[0]:transform_CR,keywords[1]:transform_R,keywords[2]:transform_SWR}
-    np.save(output_file_name,output)
+    #np.save(output_file_name,output)
+    savemat(output_file_name,output)
 
 
 figure, axes = plt.subplots(1,2)
