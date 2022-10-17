@@ -68,13 +68,13 @@ def load_data_features_by_animal(data_path,ID_sequence,events_sequence,time2):
 
     return ripple_list, class_vector_list
 
-def load_bin_information(data_path,ID_sequence,events_sequence,total_count,desired_variable):
+def load_bin_information(data_path,ID_sequence,events_sequence,total_count,group,desired_variable):
 
     ###Vehicle
     bin_vector = np.zeros((total_count,))
     counter = 0
     for rat_number in range(len(ID_sequence)):
-        data_file = 'GC_ratID' + str(ID_sequence[rat_number]) + '_cbd.mat'
+        data_file = 'GC_ratID' + str(ID_sequence[rat_number]) + '_'+group+'.mat'
         data = sio.loadmat(data_path + data_file)
         data = data['data']
         for key in range(3):
@@ -183,16 +183,16 @@ for i in range(2):
         index = i*4 + j
         sorted_veh = np.sort(features_veh[:,index])
         sorted_cbd = np.sort(features_cbd[:,index])
-        axes[i,j].scatter(sorted_veh,order_veh, color = 'k')
-        axes[i,j].scatter(sorted_cbd,order_cbd,color = 'g')
-        axes[i,j].set_ylabel('Cumulative',fontsize = 20)
+        axes[i,j].scatter(sorted_veh,1-order_veh, color = 'k')
+        axes[i,j].scatter(sorted_cbd,1-order_cbd,color = 'g')
+        axes[i,j].set_ylabel('1-Cumulative',fontsize = 20)
         axes[i,j].set_xlabel(features_label[index],fontsize = 20)
-        # axes[i, j].set_xscale('log')
-        # axes[i, j].set_yscale('log')
+        axes[i, j].set_xscale('log')
+        axes[i, j].set_yscale('log')
         axes[i,j].legend(['VEH','CBD'])
 figure.set_size_inches([25,10])
 figure.suptitle('Cumulative Distributions by order', fontsize = 25)
-figure.savefig(figure_path + 'features_2.png')
+figure.savefig(figure_path + 'features_log_version2png')
 plt.show()
 
 color_list = ['b','r','g']
@@ -210,16 +210,16 @@ for i in range(2):
             sorted_cbd = np.sort(features_cbd[index2_cbd,index])
             order_veh = np.arange(0, index2_veh.shape[0])/index2_veh.shape[0]
             order_cbd = np.arange(0, index2_cbd.shape[0])/index2_cbd.shape[0]
-            axes[i,j].scatter(sorted_veh,order_veh, color = color_list[key],alpha = 0.5)
-            axes[i,j].scatter(sorted_cbd,order_cbd,color = color_list_2[key])
-            axes[i,j].set_ylabel('Cumulative',fontsize = 20)
+            axes[i,j].scatter(sorted_veh,1-order_veh, color = color_list[key],alpha = 0.5)
+            axes[i,j].scatter(sorted_cbd,1-order_cbd,color = color_list_2[key])
+            axes[i,j].set_ylabel('1-Cumulative',fontsize = 20)
             axes[i,j].set_xlabel(features_label[index],fontsize = 20)
             axes[i,j].set_xscale('log')
             axes[i,j].set_yscale('log')
 axes[1,3].legend(['CSWR_VEH','CSWR_CBD','R_VEH','R_CBD','SWR_VEH','SWR_CBD'])
 figure.set_size_inches([25,10])
 figure.suptitle('Order features by Ripple Type', fontsize = 25)
-figure.savefig(figure_path + 'features_class_2_log.png')
+figure.savefig(figure_path + 'features_class_log_version_2.png')
 plt.show()
 
 # pca = PCA()
