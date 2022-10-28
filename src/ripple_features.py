@@ -86,7 +86,7 @@ def load_bin_information(data_path,ID_sequence,events_sequence,total_count,group
 
 def load_features(data_path,ID_sequence,events_sequence,total_count,group):
 
-    features = np.zeros((total_count,8))
+    features = np.zeros((total_count,9))
     counter = 0
     for rat_number in range(len(ID_sequence)):
         data_file = 'GC_ratID' + str(ID_sequence[rat_number]) +'_'+group +'.mat'
@@ -128,7 +128,7 @@ def load_features_by_animal(data_path,ID_sequence,events_sequence,events_counter
 
     features_list = []
     for rat_number in range(len(ID_sequence)):
-        features = np.zeros((int(events_counter[3,rat_number]), 8))
+        features = np.zeros((int(events_counter[3,rat_number]), 9))
         data_file = 'GC_ratID' + str(ID_sequence[rat_number]) +'_'+group +'.mat'
         data = sio.loadmat(data_path + data_file)
         data = data['data']
@@ -145,7 +145,6 @@ def load_features_by_animal(data_path,ID_sequence,events_sequence,events_counter
 rat_ID_veh = [3,4,9,201,203,206,210,211,213]
 rat_ID_cbd= [2,5,10,11,204,205,207,209,212,214]
 
-keywords= ['cwr','r','swr']
 keywords_veh = ['HPCpyra_complex_swr_veh','HPCpyra_ripple_veh','HPCpyra_swr_veh']
 keywords_cbd = ['HPCpyra_complex_swr_cbd','HPCpyra_ripple_cbd','HPCpyra_swr_cbd']
 type_label = ['ComplexRipple','Ripple','SWR']
@@ -153,11 +152,11 @@ srate = 600
 
 data_path_veh = '/home/melisamc/Documentos/ripple/data/HPCpyra/'
 data_path_cbd = '/home/melisamc/Documentos/ripple/data/CBD/HPCpyra/'
+data_path_group_info ='/home/melisamc/Documentos/ripple/data/group_info/'
 figure_path = '/home/melisamc/Documentos/ripple/figures/'
 
-# data_path = '/home/melisamc/Documentos/ripple/data/group_info/'
 # output_path_veh = '/home/melisamc/Documentos/ripple/data/bins_information/VEH/'
-# extract_bin_information(data_path,output_path_veh,rat_ID_cbd,keywords,desired_variable = 6)
+#extract_bin_information(data_path,output_path_veh,rat_ID_cbd,keywords,desired_variable = 6)
 
 time = np.arange(0, 3600)
 time2 = np.arange(0, 3600)
@@ -169,40 +168,134 @@ percetage_ripple_count_cbd = total_ripple_count_cbd / total_ripple_count_cbd[3]
 ripple_veh_matrix_list, class_vector_veh= load_all_data(data_path_veh,rat_ID_veh,keywords_veh,total_ripple_count_veh,time2)
 ripple_cbd_matrix_list, class_vector_cbd = load_all_data(data_path_cbd,rat_ID_cbd,keywords_cbd,total_ripple_count_cbd,time2)
 
+
 data_path= '/home/melisamc/Documentos/ripple/data/features_output/'
+keywords= ['cwr','r','swr']
 
 features_veh = load_features(data_path, rat_ID_veh, keywords, int(total_ripple_count_veh[3]),'veh')
 features_cbd = load_features(data_path, rat_ID_cbd, keywords, int(total_ripple_count_cbd[3]),'cbd')
 
-features_label = ['MeanFreq','Amplitude','Area','Duration','Peak2Peak','Power','Entropy','NumberOfPeaks']
-figure, axes = plt.subplots(2,4)
+keywords= ['cr','r','swr']
+bin_vector_veh = load_bin_information(data_path_group_info, rat_ID_veh, keywords, int(total_ripple_count_veh[3]),'veh',desired_variable = 6)
+bin_vector_cbd = load_bin_information(data_path_group_info, rat_ID_cbd, keywords, int(total_ripple_count_cbd[3]),'cbd',desired_variable = 6)
+
+
+
+index1 = np.where(bin_vector_cbd<=5)[0]
+index2 = np.where(bin_vector_cbd>5)[0]
+features_cbd1 = features_cbd[index1,:]
+features_cbd2 = features_cbd[index2,:]
+
+
+###plot distributions
+
+features_label = ['MeanFreq','Amplitude','AUC','Duration','Peak2Peak','Power','Entropy','NumberOfPeaks','SpecEntropy']
+figure, axes = plt.subplots(2,5)
 order_veh = np.arange(0,features_veh.shape[0])/features_veh.shape[0]
 order_cbd = np.arange(0,features_cbd.shape[0])/features_cbd.shape[0]
+order_cbd1 = np.arange(0,features_cbd1.shape[0])/features_cbd1.shape[0]
+order_cbd2 = np.arange(0,features_cbd2.shape[0])/features_cbd2.shape[0]
+
 for i in range(2):
-    for j in range(4):
-        index = i*4 + j
-        sorted_veh = np.sort(features_veh[:,index])
-        sorted_cbd = np.sort(features_cbd[:,index])
-        axes[i,j].scatter(sorted_veh,1-order_veh, color = 'k')
-        axes[i,j].scatter(sorted_cbd,1-order_cbd,color = 'g')
-        axes[i,j].set_ylabel('1-Cumulative',fontsize = 20)
-        axes[i,j].set_xlabel(features_label[index],fontsize = 20)
-        axes[i, j].set_xscale('log')
-        axes[i, j].set_yscale('log')
-        axes[i,j].legend(['VEH','CBD'])
-figure.set_size_inches([25,10])
-figure.suptitle('Cumulative Distributions by order', fontsize = 25)
-figure.savefig(figure_path + 'features_log_version2png')
+    for j in range(5):
+        index = i*5 + j
+        if index < 9:
+            sorted_veh = np.sort(features_veh[:,index])
+            sorted_cbd = np.sort(features_cbd[:,index])
+            sorted_cbd1 = np.sort(features_cbd1[:,index])
+            sorted_cbd2 = np.sort(features_cbd2[:,index])
+
+
+            axes[i,j].scatter(sorted_veh,1-order_veh, color = 'k')
+            axes[i,j].scatter(sorted_cbd,1-order_cbd,color = 'g')
+
+            axes[i,j].scatter(sorted_cbd1,1-order_cbd1,color = 'yellow')
+            axes[i,j].scatter(sorted_cbd2,1-order_cbd2,color = 'cyan')
+
+            axes[i,j].set_ylabel('1-Cumulative',fontsize = 20)
+            axes[i,j].set_xlabel(features_label[index],fontsize = 20)
+            axes[i, j].set_xscale('log')
+            axes[i, j].set_yscale('log')
+            axes[i,j].legend(['VEH','CBD','CBD <=5','CBD>5'])
+figure.set_size_inches([28,10])
+figure.suptitle('Features Cumulative Distributions', fontsize = 25)
+figure.savefig(figure_path + 'features_log_version_.png')
+figure.savefig(figure_path + 'features_log_version_.pdf', format='pdf')
 plt.show()
 
-color_list = ['b','r','g']
-color_list_2 = ['cyan','magenta','yellow']
+features_label = ['MeanFreq','Amplitude','AUC','Duration','Peak2Peak','Power','Entropy','NumberOfPeaks','SpecEntropy']
 
+for index in range(9):
+    figure, axes = plt.subplots()
+    order_veh = np.arange(0,features_veh.shape[0])/features_veh.shape[0]
+    order_cbd = np.arange(0,features_cbd.shape[0])/features_cbd.shape[0]
+    sorted_veh = np.sort(features_veh[:,index])
+    sorted_cbd = np.sort(features_cbd[:,index])
+    axes.scatter(sorted_veh,1-order_veh, color = 'k',s = 0.5, alpha = 0.5)
+    axes.scatter(sorted_cbd,1-order_cbd,color = 'g', s = 0.5, alpha = 0.5)
+    axes.set_ylabel('P ( X > ' + features_label[index] + ')',fontsize = 10,fontname="Arial")
+    axes.set_xlabel(features_label[index],fontsize = 10,fontname="Arial")
+    #if index != 0:
+       #axes.set_xscale('log')
+    axes.set_yscale('log')
+    axes.tick_params(axis='both', which='major', labelsize=10)
+    #axes.legend(['VEH','CBD'],fontsize = 10)
+    figure.set_size_inches([1.2,1.2])
+    #figure.suptitle(features_label [index] + 'Cumulative Distributions', fontsize = 15)
+    figure.savefig(figure_path + 'features_log_'+features_label[index]+'.png',bbox_inches='tight')
+    #figure.savefig(figure_path + 'features_log_'+features_label[index]+'.pdf', format='pdf')
+plt.show()
 
-figure, axes = plt.subplots(2,4)
+color_list = ['yellow','blue','purple']
+color_list_2 = ['yellow','blue','purple']
+
+figure, axes = plt.subplots(2,5)
+for i in range(2):
+    for j in range(5):
+        index = i*5 + j
+        if index < 9:
+            for key in range(3):
+                index2_veh = np.where(class_vector_veh == key)[0]
+                index2_cbd = np.where(class_vector_cbd == key)[0]
+                bins_vector = bin_vector_cbd[index2_cbd]
+                features_cbd_sub = features_cbd[index2_cbd,:]
+                index2_cbd1 = np.where(bins_vector<=5)[0]
+                index2_cbd2 = np.where(bins_vector>5)[0]
+
+                sorted_veh = np.sort(features_veh[index2_veh,index])
+                sorted_cbd = np.sort(features_cbd[index2_cbd,index])
+                sorted_cbd1 = np.sort(features_cbd_sub[index2_cbd1,index])
+                sorted_cbd2 = np.sort(features_cbd_sub[index2_cbd2,index])
+
+                order_veh = np.arange(0, index2_veh.shape[0])/index2_veh.shape[0]
+                order_cbd = np.arange(0, index2_cbd.shape[0])/index2_cbd.shape[0]
+
+                order_cbd1 = np.arange(0, index2_cbd1.shape[0])/index2_cbd1.shape[0]
+                order_cbd2 = np.arange(0, index2_cbd2.shape[0])/index2_cbd2.shape[0]
+
+                #axes[i,j].scatter(sorted_veh,1-order_veh, color = color_list[key],alpha = 0.5)
+                #axes[i,j].scatter(sorted_cbd,1-order_cbd,color = color_list_2[key])
+                #axes[i,j].scatter(sorted_cbd1,1-order_cbd1,color = color_list_2[key])
+                axes[i,j].scatter(sorted_cbd2,1-order_cbd2,color = color_list_2[key],alpha = 0.5)
+                axes[i,j].set_ylabel('1-Cumulative',fontsize = 20)
+                axes[i,j].set_xlabel(features_label[index],fontsize = 20)
+                axes[i,j].set_xscale('log')
+                axes[i,j].set_yscale('log')
+    #axes[1,3].legend(['CSWR_VEH','CSWR_CBD','R_VEH','R_CBD','SWR_VEH','SWR_CBD'])
+                #axes[i,j].legend(['CSWR_VEH','R_VEH','SWR_VEH'])
+                axes[i,j].legend(['CSWR_CBD','R_CBD','SWR_CBD'])
+
+figure.set_size_inches([25,10])
+figure.suptitle('Order features by Ripple Type', fontsize = 25)
+figure.savefig(figure_path + 'features_class_log_version_2_CBD_post.png')
+figure.savefig(figure_path + 'features_class_log_version_2_CBD_post.pdf', format='pdf')
+
+plt.show()
+
 for i in range(2):
     for j in range(4):
         index = i*4 + j
+        figure, axes = plt.subplots()
         for key in range(3):
             index2_veh = np.where(class_vector_veh == key)[0]
             index2_cbd = np.where(class_vector_cbd == key)[0]
@@ -210,17 +303,43 @@ for i in range(2):
             sorted_cbd = np.sort(features_cbd[index2_cbd,index])
             order_veh = np.arange(0, index2_veh.shape[0])/index2_veh.shape[0]
             order_cbd = np.arange(0, index2_cbd.shape[0])/index2_cbd.shape[0]
-            axes[i,j].scatter(sorted_veh,1-order_veh, color = color_list[key],alpha = 0.5)
-            axes[i,j].scatter(sorted_cbd,1-order_cbd,color = color_list_2[key])
-            axes[i,j].set_ylabel('1-Cumulative',fontsize = 20)
-            axes[i,j].set_xlabel(features_label[index],fontsize = 20)
-            axes[i,j].set_xscale('log')
-            axes[i,j].set_yscale('log')
-axes[1,3].legend(['CSWR_VEH','CSWR_CBD','R_VEH','R_CBD','SWR_VEH','SWR_CBD'])
-figure.set_size_inches([25,10])
-figure.suptitle('Order features by Ripple Type', fontsize = 25)
-figure.savefig(figure_path + 'features_class_log_version_2.png')
+            axes.scatter(sorted_veh,1-order_veh, color = color_list[key],s = 0.5, alpha = 0.5)
+            #axes.scatter(sorted_cbd,1-order_cbd,color = color_list_2[key])
+            axes.set_xlabel(features_label[index],fontsize = 10)
+            axes.tick_params(axis='both', which='major', labelsize=10)
+            if index != 0 :
+                axes.set_xscale('log')
+            axes.set_yscale('log')
+            axes.set_ylabel('P ( X > ' + features_label[index] + ')', fontsize=10, fontname="Arial")
+
+        #axes[1,3].legend(['CSWR_VEH','CSWR_CBD','R_VEH','R_CBD','SWR_VEH','SWR_CBD'])
+            #axes.legend(['CSWR_VEH','R_VEH','SWR_VEH'])
+            #axes.legend(['CSWR_CBD','R_CBD','SWR_CBD'])
+
+        figure.set_size_inches([1.2,1.2])
+        figure.savefig(figure_path + 'features_class_log_' + features_label[index] + '.png',bbox_inches='tight')
+        #figure.savefig(figure_path + 'features_class_log_' + features_label[index] + '.pdf', format='pdf')
 plt.show()
+
+from sklearn.linear_model import LinearRegression
+reg1 = LinearRegression().fit(np.log10(features_veh[:,2].reshape(-1,1)), np.log10(features_veh[:,4]))
+reg2 = LinearRegression().fit(np.log10(features_cbd[:,2].reshape(-1,1)), np.log10(features_cbd[:,4]))
+x = np.arange(0,np.max(features_veh[:,2]),0.1)
+y1 = reg1.coef_[0] * x + reg1.intercept_
+y2 = reg2.coef_[0] * x + reg2.intercept_
+
+figure, axes = plt.subplots()
+axes.scatter(features_veh[:,2],features_veh[:,4],c = 'k',s = 0.1, alpha = 0.1)
+axes.scatter(features_cbd[:,2],features_cbd[:,4],c = 'g',s = 0.1, alpha = 0.1)
+
+axes.plot(x,y1,c = 'k', linewidth = 1)
+axes.plot(x,y2,c = 'g', linewidth = 1)
+
+axes.set_xscale('log')
+axes.set_yscale('log')
+plt.show()
+###########################################################################################################
+###########################################################################################################
 
 # pca = PCA()
 # pca.fit(features_veh)
@@ -232,10 +351,19 @@ from sklearn import svm
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 
+
+
+features_cbd1 = features_cbd[index1,:]
+features_cbd2 = features_cbd[index2,:]
+class_vector_cbd1 = class_vector_cbd[index1]
+class_vector_cbd2 = class_vector_cbd[index2]
+
 clf_1 = svm.SVC()
 scores_1_veh = cross_val_score(clf_1, features_veh, class_vector_veh,cv = 10)
 clf_1.fit(features_veh,class_vector_veh)
 score1_veh_cbd= clf_1.score(features_cbd,class_vector_cbd)
+score1_veh_cbd1 = clf_1.score(features_cbd1,class_vector_cbd1)
+score1_veh_cbd2 = clf_1.score(features_cbd2,class_vector_cbd2)
 index = np.random.permutation(len(class_vector_veh))
 random_class = class_vector_veh[index]
 scores_1_veh_random = cross_val_score(clf_1, features_veh, random_class,cv =10)
@@ -244,73 +372,118 @@ clf_2 = GaussianNB()
 scores_2_veh = cross_val_score(clf_2, features_veh, class_vector_veh,cv =10)
 clf_2.fit(features_veh,class_vector_veh)
 score2_veh_cbd = clf_2.score(features_cbd,class_vector_cbd)
+score2_veh_cbd1 = clf_2.score(features_cbd1,class_vector_cbd1)
+score2_veh_cbd2 = clf_2.score(features_cbd2,class_vector_cbd2)
 scores_2_veh_random = cross_val_score(clf_2, features_veh, random_class,cv =10)
 
 clf_1 = svm.SVC()
 scores_1_cbd = cross_val_score(clf_1, features_cbd, class_vector_cbd,cv=10)
+scores_1_cbd1 = cross_val_score(clf_1, features_cbd1, class_vector_cbd1,cv=10)
+scores_1_cbd2 = cross_val_score(clf_1, features_cbd2, class_vector_cbd2,cv=10)
 index = np.random.permutation(len(class_vector_cbd))
 random_class = class_vector_cbd[index]
 scores_1_cbd_random = cross_val_score(clf_1, features_cbd, random_class,cv=10)
+index = np.random.permutation(len(class_vector_cbd1))
+random_class1 = class_vector_cbd1[index]
+scores_1_cbd1_random = cross_val_score(clf_1, features_cbd1, random_class1,cv=10)
+index = np.random.permutation(len(class_vector_cbd2))
+random_class2 = class_vector_cbd2[index]
+scores_1_cbd2_random = cross_val_score(clf_1, features_cbd2, random_class2,cv=10)
 
 clf_2 = GaussianNB()
 scores_2_cbd = cross_val_score(clf_2, features_cbd, class_vector_cbd,cv=10)
-scores_2_cbd_random = cross_val_score(clf_2, features_cbd, random_class)
+scores_2_cbd1 = cross_val_score(clf_2, features_cbd1, class_vector_cbd1,cv=10)
+scores_2_cbd2 = cross_val_score(clf_2, features_cbd2, class_vector_cbd2,cv=10)
+scores_2_cbd_random = cross_val_score(clf_2, features_cbd, random_class, cv = 10)
+scores_2_cbd1_random = cross_val_score(clf_2, features_cbd1, random_class1, cv = 10)
+scores_2_cbd2_random = cross_val_score(clf_2, features_cbd2, random_class2, cv = 10)
 
 
 vector1 = [1,1,1,1,1,1,1,1,1,1]
 vector2 = [2]
 
 vector3 = [4,4,4,4,4,4,4,4,4,4]
-vector4 = [5]
+vector4 = [5,5,5,5,5,5,5,5,5,5]
+vector5 = [6,6,6,6,6,6,6,6,6,6]
 
-xlabel = ['','VEH_VEH','VEH_CBD','','CBD_CBD','']
+xlabel = ['','VEH_VEH','VEH_CBD','','CBD_CBD','CBD1_CBD1','CBD2_CBD2']
 
-# figure, axes = plt.subplots()
-# axes.scatter(vector1,scores_1_veh,color = 'b',alpha= 0.2)
-# axes.scatter(vector1,scores_1_veh_random,color = 'k', alpha = 0.2)
-# axes.errorbar([1],np.mean(scores_1_veh),np.std(scores_1_veh),color = 'b')
-# axes.errorbar([1],np.mean(scores_1_veh_random),np.std(scores_1_veh_random),color ='k')
-# axes.scatter(vector2,score1_veh_cbd, color ='r',alpha = 0.5)
-#
-# axes.scatter(vector3,scores_1_cbd,color = 'b',alpha= 0.2)
-# axes.scatter(vector3,scores_1_cbd_random,color = 'k', alpha = 0.2)
-# axes.errorbar([1],np.mean(scores_1_cbd),np.std(scores_1_cbd),color = 'b',markdown='x')
-# axes.errorbar([1],np.mean(scores_1_cbd_random),np.std(scores_1_cbd_random),color ='k')
-# axes.set_xticks(np.arange(0,6))
-# axes.set_xticklabels(xlabel)
-# axes.set_xlabel('CONDTIONS TRAINING vs TESTING', fontsize = 15)
-# axes.set_ylabel('Score', fontsize = 15)
-#
-# axes.hlines(0.33,0,5,color = 'k')
-# axes.set_ylim([0,1])
-# axes.set_title('SVM classifier',fontsize = 20)
-# figure.savefig(figure_path + 'SVM_classifier.png')
-#
-# plt.show()
-#
-#
-# figure, axes = plt.subplots()
-# axes.scatter(vector1,scores_2_veh,color = 'b',alpha= 0.5)
-# axes.scatter(vector1,scores_2_veh_random,color = 'k', alpha = 0.5)
-# axes.scatter(vector2,score2_veh_cbd, color ='r',alpha = 0.5)
-# axes.errorbar(vector1,np.mean(scores_2_veh),np.std(scores_2_veh))
-# axes.scatter(vector2,score2_veh_cbd, color ='r',alpha = 0.5)
-#
-# axes.scatter(vector3,scores_2_cbd,color = 'b',alpha= 0.5)
-# axes.scatter(vector3,scores_2_cbd_random,color = 'k', alpha = 0.5)
-# axes.set_xticks(np.arange(0,6))
-# axes.set_xticklabels(xlabel)
-# axes.set_xlabel('CONDTIONS TRAINING vs TESTING', fontsize = 15)
-# axes.set_ylabel('Score', fontsize = 15)
-#
-# axes.hlines(0.33,0,5,color = 'k')
-# axes.set_ylim([0,1])
-# axes.set_title('GNB classifier',fontsize = 20)
-# figure.savefig(figure_path + 'GNB_classifier.png')
-#
-# plt.show()
+figure, axes = plt.subplots()
+axes.scatter(vector1,scores_1_veh,color = 'k',alpha= 0.2)
+axes.scatter(vector1,scores_1_veh_random,color = 'b', alpha = 0.2)
+axes.errorbar([1],np.mean(scores_1_veh),np.std(scores_1_veh),color = 'k')
+axes.errorbar([1],np.mean(scores_1_veh_random),np.std(scores_1_veh_random),color ='b')
+axes.scatter(vector2,score1_veh_cbd, color ='g',alpha = 0.5)
+axes.scatter(vector2,score1_veh_cbd1, color ='yellow',alpha = 0.5)
+axes.scatter(vector2,score1_veh_cbd2, color ='cyan',alpha = 0.5)
+
+axes.scatter(vector3,scores_1_cbd,color = 'g',alpha= 0.2)
+axes.scatter(vector3,scores_1_cbd_random,color = 'b', alpha = 0.2)
+axes.errorbar([4],np.mean(scores_1_cbd),np.std(scores_1_cbd),color = 'g')
+axes.errorbar([4],np.mean(scores_1_cbd_random),np.std(scores_1_cbd_random),color ='b')
+
+axes.scatter(vector4,scores_1_cbd1,color = 'yellow',alpha= 0.2)
+axes.scatter(vector4,scores_1_cbd1_random,color = 'b', alpha = 0.2)
+
+axes.scatter(vector5,scores_1_cbd2,color = 'cyan', alpha = 0.2)
+axes.scatter(vector5,scores_1_cbd2_random,color = 'b', alpha = 0.2)
+
+axes.errorbar([5],np.mean(scores_1_cbd1),np.std(scores_1_cbd1),color = 'yellow')
+axes.errorbar([6],np.mean(scores_1_cbd2),np.std(scores_1_cbd2),color ='cyan')
+
+axes.set_xticks(np.arange(0,len(xlabel)))
+axes.set_xticklabels(xlabel)
+axes.set_xlabel('CONDTIONS TRAINING vs TESTING', fontsize = 15)
+axes.set_ylabel('Score', fontsize = 15)
+axes.hlines(0.33,0,7,color = 'k')
+axes.set_ylim([0,1])
+axes.set_title('SVM classifier',fontsize = 20)
+figure.set_size_inches([10,10])
+figure.savefig(figure_path + 'SVM_classifier_9features_.png')
+
+plt.show()
+
+
+figure, axes = plt.subplots()
+axes.scatter(vector1,scores_2_veh,color = 'k',alpha= 0.5)
+axes.scatter(vector1,scores_2_veh_random,color = 'b', alpha = 0.5)
+axes.errorbar([1],np.mean(scores_2_veh),np.std(scores_2_veh),color = 'k')
+axes.errorbar([1],np.mean(scores_2_veh_random),np.std(scores_2_veh_random),color ='b')
+axes.scatter(vector2,score2_veh_cbd, color ='g',alpha = 0.5)
+axes.scatter(vector2,score2_veh_cbd1, color ='yellow',alpha = 0.5)
+axes.scatter(vector2,score2_veh_cbd2, color ='cyan',alpha = 0.5)
+
+axes.scatter(vector3,scores_2_cbd,color = 'g',alpha= 0.5)
+axes.scatter(vector3,scores_2_cbd_random,color = 'b', alpha = 0.5)
+
+axes.scatter(vector4,scores_2_cbd1,color = 'yellow',alpha= 0.2)
+axes.scatter(vector4,scores_2_cbd1_random,color = 'b', alpha = 0.2)
+
+axes.scatter(vector5,scores_2_cbd2,color = 'cyan', alpha = 0.2)
+axes.scatter(vector5,scores_2_cbd2_random,color = 'b', alpha = 0.2)
+
+axes.errorbar([5],np.mean(scores_2_cbd1),np.std(scores_2_cbd1),color = 'yellow')
+axes.errorbar([6],np.mean(scores_2_cbd2),np.std(scores_2_cbd2),color ='cyan')
+
+
+axes.set_xticks(np.arange(0,len(xlabel)))
+axes.set_xticklabels(xlabel)
+axes.set_xlabel('CONDTIONS TRAINING vs TESTING', fontsize = 15)
+axes.set_ylabel('Score', fontsize = 15)
+axes.hlines(0.33,0,7,color = 'k')
+axes.set_ylim([0,1])
+axes.set_title('GNB classifier',fontsize = 20)
+figure.set_size_inches([10,7])
+figure.savefig(figure_path + 'GNB_classifier_9features_.png')
+
+plt.show()
+
+
+
 
 ###############################################################################
+###############################################################################################################
+#Train rat by rat classifier
 
 ripple_veh_list, class_veh_list, events_count_veh = load_data_features_by_animal(data_path_veh,rat_ID_veh,keywords_veh,time2)
 ripple_cbd_list, class_cbd_list, events_count_cbd = load_data_features_by_animal(data_path_cbd,rat_ID_cbd,keywords_cbd,time2)
@@ -329,7 +502,7 @@ for i in range(len(features_cbd_list)):
 
 scores_veh = np.zeros((len(rat_ID_veh),))
 clf = GaussianNB()
-clf = svm.SVC()
+#clf = svm.SVC()
 for rat in range(len(rat_ID_veh)):
     index = np.random.permutation(features_veh_list[rat].shape[0])
     X_train, X_test, y_train, y_test = train_test_split(features_veh_list[rat][index,:], class_veh_list[rat][index], test_size = 0.1, random_state = 0)
@@ -506,5 +679,8 @@ ax4.set_ylabel('#', fontsize = 15)
 ax4.set_title('Z_scored Accuracy', fontsize = 20)
 
 figure.set_size_inches([25,17])
-figure.savefig(figure_path + 'SVM_class.png')
+figure.savefig(figure_path + 'GNB_class_9features.png')
 plt.show()
+
+
+###############################################################3
