@@ -23,7 +23,7 @@ LAYER = ['s','r']
 for layer in range(2):
     veh_sw = data_pd.loc[(data_pd['treatment'] ==0) & (data_pd['layer'] == layer) & (data_pd['belonging'] == 0)]
     cbd_sw = data_pd.loc[(data_pd['treatment'] ==1) & (data_pd['layer'] == layer) & (data_pd['belonging'] == 0)]
-    for index in range(8):
+    for index in [1,3,4]:
         figure, axes = plt.subplots()
         features_veh = veh_sw[features[index]]
         features_cbd = cbd_sw[features[index]]
