@@ -40,80 +40,12 @@ def compute_spectrogram_regression_csd(matrix,time_range):
 
     return vector_intercept,vector_coef
 
-data_path= '/home/melisamc/Documentos/ripple/data/csd/'
-figure_path = '/home/melisamc/Documentos/ripple/figures/'
+data_path= '/home/melisamc/Documentos/ripple/data/csd/cbd/'
+figure_path = '/home/melisamc/Documentos/ripple/figures/csd/cbd/'
 files_name = ['SW','R','SWR','cSWR']
 colors = ['r','b','purple','orange']
 dict_name = ['csd_mat_SW','csd_mat_Ripp','csd_mat_SWR','csd_mat_cSWR']
 fs = 600
-
-type = 2
-data = sio.loadmat(data_path + files_name[type] + '.mat')
-matrix = data[dict_name[type]]
-
-time_range = 150
-[offset_SW,slope_SW] = compute_spectrogram_regression_csd(matrix,time_range)
-mean_slope_SW = np.mean(slope_SW,axis = 2)
-std_slope_SW = np.mean(slope_SW,axis = 2) / np.sqrt(slope_SW.shape[2])
-mean_offset_SW = np.mean(offset_SW,axis = 2)
-std_offset_SW = np.mean(offset_SW,axis = 2) / np.sqrt(offset_SW.shape[2])
-
-
-figure, axes = plt.subplots(1,2)
-time_axes = np.arange(0,3601)/fs - 3
-for i in range(mean_slope_SW.shape[1]):
-    slope = (mean_slope_SW[:,i] - np.min(mean_slope_SW[:,i])) / (np.max(mean_slope_SW[:,i]) - np.min(mean_slope_SW[:,i]))
-    slope = mean_slope_SW[:, i]
-    axes[0].plot(time_axes,slope + i, c =colors[type])
-    offset = (mean_offset_SW[:,i] - np.min(mean_offset_SW[:,i])) / (np.max(mean_offset_SW[:,i]) - np.min(mean_offset_SW[:,i]))
-    offset = mean_offset_SW[:, i]
-    axes[1].plot(time_axes,offset + i, c = colors[type])
-
-for ax in range(2):
-    axes[ax].set_xlim([-0.25,0.24])
-    axes[ax].set_yticks([])
-    axes[ax].set_xlabel('Time (s)', fontsize = 15)
-axes[0].set_title('Slope', fontsize = 15)
-axes[1].set_title('Offset', fontsize = 15)
-
-figure.set_size_inches([6,6])
-figure.savefig(figure_path + 'csd_slope_' + files_name[type] + '.png' )
-np.save(data_path + 'csd_SWR_slope.npy',slope_SW)
-np.save(data_path + 'csd_SWR_offset.npy',offset_SW)
-
-type = 3
-data = sio.loadmat(data_path + files_name[type] + '.mat')
-matrix = data[dict_name[type]]
-
-time_range = 150
-[offset_SW,slope_SW] = compute_spectrogram_regression_csd(matrix,time_range)
-mean_slope_SW = np.mean(slope_SW,axis = 2)
-std_slope_SW = np.mean(slope_SW,axis = 2) / np.sqrt(slope_SW.shape[2])
-mean_offset_SW = np.mean(offset_SW,axis = 2)
-std_offset_SW = np.mean(offset_SW,axis = 2) / np.sqrt(offset_SW.shape[2])
-
-
-figure, axes = plt.subplots(1,2)
-time_axes = np.arange(0,3601)/fs - 3
-for i in range(mean_slope_SW.shape[1]):
-    slope = (mean_slope_SW[:,i] - np.min(mean_slope_SW[:,i])) / (np.max(mean_slope_SW[:,i]) - np.min(mean_slope_SW[:,i]))
-    slope = mean_slope_SW[:, i]
-    axes[0].plot(time_axes,slope + i, c =colors[type])
-    offset = (mean_offset_SW[:,i] - np.min(mean_offset_SW[:,i])) / (np.max(mean_offset_SW[:,i]) - np.min(mean_offset_SW[:,i]))
-    offset = mean_offset_SW[:, i]
-    axes[1].plot(time_axes,offset + i, c = colors[type])
-
-for ax in range(2):
-    axes[ax].set_xlim([-0.25,0.24])
-    axes[ax].set_yticks([])
-    axes[ax].set_xlabel('Time (s)', fontsize = 15)
-axes[0].set_title('Slope', fontsize = 15)
-axes[1].set_title('Offset', fontsize = 15)
-
-figure.set_size_inches([6,6])
-figure.savefig(figure_path + 'csd_slope_' + files_name[type] + '.png' )
-np.save(data_path + 'csd_cSWR_slope.npy',slope_SW)
-np.save(data_path + 'csd_cSWR_offset.npy',offset_SW)
 
 type = 0
 data = sio.loadmat(data_path + files_name[type] + '.mat')
@@ -148,6 +80,106 @@ figure.set_size_inches([6,6])
 figure.savefig(figure_path + 'csd_slope_' + files_name[type] + '.png' )
 np.save(data_path + 'csd_SW_slope.npy',slope_SW)
 np.save(data_path + 'csd_SW_offset.npy',offset_SW)
+
+type = 1
+data = sio.loadmat(data_path + files_name[type] + '.mat')
+matrix = data[dict_name[type]]
+
+time_range = 150
+[offset_SW,slope_SW] = compute_spectrogram_regression_csd(matrix,time_range)
+mean_slope_SW = np.mean(slope_SW,axis = 2)
+std_slope_SW = np.mean(slope_SW,axis = 2) / np.sqrt(slope_SW.shape[2])
+mean_offset_SW = np.mean(offset_SW,axis = 2)
+std_offset_SW = np.mean(offset_SW,axis = 2) / np.sqrt(offset_SW.shape[2])
+
+figure, axes = plt.subplots(1,2)
+time_axes = np.arange(0,3601)/fs - 3
+for i in range(mean_slope_SW.shape[1]):
+    slope = (mean_slope_SW[:,i] - np.min(mean_slope_SW[:,i])) / (np.max(mean_slope_SW[:,i]) - np.min(mean_slope_SW[:,i]))
+    slope = mean_slope_SW[:, i]
+    axes[0].plot(time_axes,slope + i, c =colors[type])
+    offset = (mean_offset_SW[:,i] - np.min(mean_offset_SW[:,i])) / (np.max(mean_offset_SW[:,i]) - np.min(mean_offset_SW[:,i]))
+    offset = mean_offset_SW[:, i]
+    axes[1].plot(time_axes,offset + i, c = colors[type])
+
+for ax in range(2):
+    axes[ax].set_xlim([-0.25,0.24])
+    axes[ax].set_yticks([])
+    axes[ax].set_xlabel('Time (s)', fontsize = 15)
+axes[0].set_title('Slope', fontsize = 15)
+axes[1].set_title('Offset', fontsize = 15)
+
+figure.set_size_inches([6,6])
+figure.savefig(figure_path + 'csd_slope_' + files_name[type] + '.png' )
+np.save(data_path + 'csd_R_slope.npy',slope_SW)
+np.save(data_path + 'csd_R_offset.npy',offset_SW)
+
+type = 2
+data = sio.loadmat(data_path + files_name[type] + '.mat')
+matrix = data[dict_name[type]]
+
+time_range = 150
+[offset_SW,slope_SW] = compute_spectrogram_regression_csd(matrix,time_range)
+mean_slope_SW = np.mean(slope_SW,axis = 2)
+std_slope_SW = np.mean(slope_SW,axis = 2) / np.sqrt(slope_SW.shape[2])
+mean_offset_SW = np.mean(offset_SW,axis = 2)
+std_offset_SW = np.mean(offset_SW,axis = 2) / np.sqrt(offset_SW.shape[2])
+
+figure, axes = plt.subplots(1,2)
+time_axes = np.arange(0,3601)/fs - 3
+for i in range(mean_slope_SW.shape[1]):
+    slope = (mean_slope_SW[:,i] - np.min(mean_slope_SW[:,i])) / (np.max(mean_slope_SW[:,i]) - np.min(mean_slope_SW[:,i]))
+    slope = mean_slope_SW[:, i]
+    axes[0].plot(time_axes,slope + i, c =colors[type])
+    offset = (mean_offset_SW[:,i] - np.min(mean_offset_SW[:,i])) / (np.max(mean_offset_SW[:,i]) - np.min(mean_offset_SW[:,i]))
+    offset = mean_offset_SW[:, i]
+    axes[1].plot(time_axes,offset + i, c = colors[type])
+
+for ax in range(2):
+    axes[ax].set_xlim([-0.25,0.24])
+    axes[ax].set_yticks([])
+    axes[ax].set_xlabel('Time (s)', fontsize = 15)
+axes[0].set_title('Slope', fontsize = 15)
+axes[1].set_title('Offset', fontsize = 15)
+
+figure.set_size_inches([6,6])
+figure.savefig(figure_path + 'csd_slope_' + files_name[type] + '.png' )
+np.save(data_path + 'csd_SWR_slope.npy',slope_SW)
+np.save(data_path + 'csd_SWR_offset.npy',offset_SW)
+
+type = 3
+data = sio.loadmat(data_path + files_name[type] + '.mat')
+matrix = data[dict_name[type]]
+
+time_range = 150
+[offset_SW,slope_SW] = compute_spectrogram_regression_csd(matrix,time_range)
+mean_slope_SW = np.mean(slope_SW,axis = 2)
+std_slope_SW = np.mean(slope_SW,axis = 2) / np.sqrt(slope_SW.shape[2])
+mean_offset_SW = np.mean(offset_SW,axis = 2)
+std_offset_SW = np.mean(offset_SW,axis = 2) / np.sqrt(offset_SW.shape[2])
+
+figure, axes = plt.subplots(1,2)
+time_axes = np.arange(0,3601)/fs - 3
+for i in range(mean_slope_SW.shape[1]):
+    slope = (mean_slope_SW[:,i] - np.min(mean_slope_SW[:,i])) / (np.max(mean_slope_SW[:,i]) - np.min(mean_slope_SW[:,i]))
+    slope = mean_slope_SW[:, i]
+    axes[0].plot(time_axes,slope + i, c =colors[type])
+    offset = (mean_offset_SW[:,i] - np.min(mean_offset_SW[:,i])) / (np.max(mean_offset_SW[:,i]) - np.min(mean_offset_SW[:,i]))
+    offset = mean_offset_SW[:, i]
+    axes[1].plot(time_axes,offset + i, c = colors[type])
+
+for ax in range(2):
+    axes[ax].set_xlim([-0.25,0.24])
+    axes[ax].set_yticks([])
+    axes[ax].set_xlabel('Time (s)', fontsize = 15)
+axes[0].set_title('Slope', fontsize = 15)
+axes[1].set_title('Offset', fontsize = 15)
+
+figure.set_size_inches([6,6])
+figure.savefig(figure_path + 'csd_slope_' + files_name[type] + '.png' )
+np.save(data_path + 'csd_cSWR_slope.npy',slope_SW)
+np.save(data_path + 'csd_cSWR_offset.npy',offset_SW)
+
 
 
 slope_SW = np.load(data_path + 'csd_SW_slope.npy')
@@ -336,17 +368,14 @@ cdict = {'red':   ((0.0,  0.22, 0.0),
                    (0.5,  0.0, 0.0),
                    (1.0,  0.11, 1.0))}
 
-cmap = colors.LinearSegmentedColormap('custom', cdict)
-COLOR = (0.0, 0.1, 0)
-def color_conv(color_range):
-    return (COLOR[0] + color_range, COLOR[1], COLOR[2])
 
 figure, axes = plt.subplots(1,4)
 time_axes = np.arange(0,3601)/fs - 3
 for j in range(4):
     slope = np.mean(matrix_list[j], axis=2)
     for i in range(slope.shape[1]):
-        axes[j].plot(time_axes,slope[:,i], color=color_conv(i/30), linewidth = 1)
+        #axes[j].plot(time_axes,slope[:,i], color=color_conv(slope.shape[1]-i/30), linewidth = 1)
+        axes[j].plot(time_axes,slope[:,i], color='k', linewidth = 1)
 
 for j in range(4):
     for ax in range(2):
@@ -359,41 +388,147 @@ for j in range(4):
 figure.set_size_inches([15,6])
 figure.savefig(figure_path + 'csd.png' )
 
+#
+#
+# figure, axes = plt.subplots(1,4)
+# time_axes = np.arange(0,3601)/fs - 3
+# for j in range(4):
+#     slope = np.mean(matrix_list[j], axis=2)
+#     for i in range(slope.shape[1]):
+#         axes[j].plot(time_axes,np.abs(slope[:,i]), color=color_conv(i/30), linewidth = 1)
+#
+# for j in range(4):
+#     for ax in range(2):
+#         axes[j].set_xlim([-0.25,0.24])
+#         axes[j].set_xlabel('Time (s)', fontsize = 15)
+#     axes[j].set_title('CSD', fontsize = 15)
+#     axes[j].set_ylim([0,80])
+#
+#
+# figure.set_size_inches([15,6])
+# figure.savefig(figure_path + 'abs_csd.png' )
+
+
+cmap = colors.LinearSegmentedColormap('custom', cdict)
+COLOR = []
+COLOR.append((0, 0, 0))
+COLOR.append((0, 0, 0))
+COLOR.append((0, 0, 0))
+COLOR.append((0, 0, 0))
+
+COLOR_RANGE = []
+COLOR_RANGE.append((1, 0, 0))
+COLOR_RANGE.append((0, 0, 1))
+COLOR_RANGE.append((1, 0, 1))
+COLOR_RANGE.append((1, 1, 0))
+
+def color_conv(color,color_range):
+    return (color[0] + color_range[0], color[1]+ color_range[1], color[2]+ color_range[2])
 
 
 figure, axes = plt.subplots(1,4)
 time_axes = np.arange(0,3601)/fs - 3
+time_range = np.arange(3600/2-0.1*600,3600/2+0.1*600).astype(int)
 for j in range(4):
     slope = np.mean(matrix_list[j], axis=2)
     for i in range(slope.shape[1]):
-        axes[j].plot(time_axes,np.abs(slope[:,i]), color=color_conv(i/30), linewidth = 1)
+        #axes[j].plot(time_axes[time_range],slope[time_range,i]-10*i, color=color_conv(COLOR[j],np.array(COLOR_RANGE[j])*(slope.shape[1]-i)/30), linewidth = 1)
+        axes[j].plot(time_axes[time_range],slope[time_range,i]-10*i, color='k', linewidth = 1)
 
 for j in range(4):
-    for ax in range(2):
-        axes[j].set_xlim([-0.25,0.24])
-        axes[j].set_xlabel('Time (s)', fontsize = 15)
-    axes[j].set_title('CSD', fontsize = 15)
-    axes[j].set_ylim([0,80])
-
-
-figure.set_size_inches([15,6])
-figure.savefig(figure_path + 'abs_csd.png' )
-
-
-
-figure, axes = plt.subplots(1,4)
-time_axes = np.arange(0,3601)/fs - 3
-for j in range(4):
-    slope = np.mean(matrix_list[j], axis=2)
-    for i in range(slope.shape[1]):
-        axes[j].plot(time_axes,slope[:,i]+10*i, color=color_conv(i/30), linewidth = 1)
-
-for j in range(4):
-    axes[j].set_xlim([-0.25,0.24])
-    axes[j].set_xlabel('Time (s)', fontsize = 15)
-    axes[j].set_title('CSD ' + files_name[j], fontsize = 15)
+    axes[j].set_xlim([-0.1,0.1])
+    axes[j].set_xlabel('Time (s)', fontname="Arial",fontsize = 10)
+    axes[j].set_title(files_name[j], fontname="Arial",fontsize = 10)
     #axes[j].set_ylim([0,80])
     axes[j].set_yticks([])
 
-figure.set_size_inches([15,6])
-figure.savefig(figure_path + 'csd_2.png' )
+#figure.tight_layout(pad=2.5)
+plt.subplots_adjust(left=0.05,
+                    bottom=0.2,
+                    right=0.95,
+                    top=0.9,
+                    wspace=0.45,
+                    hspace=0.4)
+figure.set_size_inches([4,2.36])
+figure.savefig(figure_path + 'csd_2.pdf' )
+
+
+figure, axes = plt.subplots(1,4)
+time_axes = np.arange(0,3601)/fs - 3
+for j in range(4):
+    slope1 = np.mean(slope_list[j], axis=2)
+    for i in range(slope1.shape[1]):
+        norm_slope = (slope1[time_range,i]-min(slope1[time_range,i]))/(max(slope1[time_range,i])-min(slope1[time_range,i]))
+        #axes[j].plot(time_axes[time_range],norm_slope-i, color=color_conv(COLOR[j],np.array(COLOR_RANGE[j])*(slope.shape[1]-i)/30), linewidth = 1)
+        axes[j].plot(time_axes[time_range],norm_slope-i, color='k', linewidth = 1)
+
+for j in range(4):
+    axes[j].set_xlim([-0.1,0.1])
+    axes[j].set_xlabel('Time (s)', fontname="Arial",fontsize = 10)
+    axes[j].set_title(files_name[j], fontname="Arial",fontsize = 10)
+    #axes[j].set_ylim([0,80])
+    axes[j].set_yticks([])
+
+#figure.tight_layout(pad=2.5)
+plt.subplots_adjust(left=0.05,
+                    bottom=0.2,
+                    right=0.95,
+                    top=0.9,
+                    wspace=0.45,
+                    hspace=0.4)
+figure.set_size_inches([4,2.36])
+figure.savefig(figure_path + 'slope_only.png' )
+
+
+figure, axes = plt.subplots(1,4)
+time_axes = np.arange(0,3601)/fs - 3
+for j in range(4):
+    slope1 = np.mean(offset_list[j], axis=2)
+    slope = slope1.copy()
+    for i in range(slope1.shape[1]):
+        norm_slope = (slope1[time_range,i]-min(slope1[time_range,i]))/(max(slope1[time_range,i])-min(slope1[time_range,i]))
+        #axes[j].plot(time_axes[time_range],norm_slope-i, color=color_conv(COLOR[j],np.array(COLOR_RANGE[j])*(slope.shape[1]-i)/30), linewidth = 1)
+        axes[j].plot(time_axes[time_range],norm_slope-i, color='k', linewidth = 1)
+
+for j in range(4):
+    axes[j].set_xlim([-0.1,0.1])
+    axes[j].set_xlabel('Time (s)', fontname="Arial",fontsize = 10)
+    axes[j].set_title(files_name[j], fontname="Arial",fontsize = 10)
+    #axes[j].set_ylim([0,80])
+    axes[j].set_yticks([])
+
+#figure.tight_layout(pad=2.5)
+plt.subplots_adjust(left=0.05,
+                    bottom=0.2,
+                    right=0.95,
+                    top=0.9,
+                    wspace=0.45,
+                    hspace=0.4)
+figure.set_size_inches([4,2.36])
+figure.savefig(figure_path + 'offset_only.png' )
+
+
+figure, axes = plt.subplots(1,2)
+time_axes = np.arange(0,3601)/fs - 3
+for j in range(4):
+    slope1 = np.mean(slope_list[j], axis=2)
+    for i in range(slope1.shape[1]):
+        norm_slope = (slope1[time_range,i]-min(slope1[time_range,i]))/(max(slope1[time_range,i])-min(slope1[time_range,i]))
+        axes[0].plot(time_axes[time_range],norm_slope-i, color=color_conv(COLOR[j],np.array(COLOR_RANGE[j])*(slope.shape[1]-i)/30), linewidth = 1)
+    slope1 = np.mean(offset_list[j], axis=2)
+    for i in range(slope1.shape[1]):
+        norm_slope = (slope1[time_range,i]-min(slope1[time_range,i]))/(max(slope1[time_range,i])-min(slope1[time_range,i]))
+        axes[1].plot(time_axes[time_range],norm_slope-i, color=color_conv(COLOR[j],np.array(COLOR_RANGE[j])*(slope.shape[1]-i)/30), linewidth = 1)
+
+for j in range(2):
+    axes[j].set_xlim([-0.1,0.1])
+    axes[j].set_xlabel('Time (s)', fontsize = 15)
+    axes[j].set_yticks([])
+
+axes[0].set_title('Slope', fontsize = 15)
+axes[1].set_title('Offset', fontsize = 15)
+
+
+figure.set_size_inches([10,15])
+figure.savefig(figure_path + 'slope_offset_typer_comparison_2.png' )
+
